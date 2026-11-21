@@ -69,7 +69,66 @@ let activeCategory = 'All'
 let searchQuery = ''
 let activeBudget = 'all'
 
+function renderCards() {
+  const filteredWorkspaces = workspaces.filter(workspace => {
+    const searchText = `
+      ${workspace.name}
+      ${workspace.category}
+      ${workspace.description}
+      ${workspace.equipment.join(' ')}
+      ${workspace.features.join(' ')}
+    `.toLowerCase()
+
+    const matchesSearch = searchText.includes(searchQuery.toLowerCase())
+
+    const matchesCategory =
+      activeCategory === 'All' || workspace.category === activeCategory
+
+    const budget = Number(workspace.budget.replace('$', ''))
+
+    const matchesBudget =
+      activeBudget === 'all' || budget < Number(activeBudget)
+
+    return matchesSearch && matchesCategory && matchesBudget
+  })
+
+  const grid = document.querySelector('.workspace-grid')
+  const count = document.querySelector('.results-count')
+
+  if (!grid || !count) return
+
+  count.textContent = `Showing ${filteredWorkspaces.length} of ${workspaces.length} workspaces`
+
+  if (filteredWorkspaces.length === 0) {
+    grid.innerHTML = `
+      <p class="no-results">
+        No workspaces found. Try changing your search or filters.
+      </p>
+    `
+    return
+  }
+
+  grid.innerHTML = filteredWorkspaces.map(workspace => `
+    <article class="workspace-card">
+      <a href="#workspace/${workspace.id}" class="card-link">
+        <img src="${workspace.image}" alt="${workspace.name}" loading="lazy">
+
+        <div class="card-content">
+          <span class="category">${workspace.category}</span>
+          <h3>${workspace.name}</h3>
+          <p>${workspace.description}</p>
+          <p><strong>Equipment:</strong> ${workspace.equipment.join(', ')}</p>
+          <p class="budget">Estimated budget: ${workspace.budget}</p>
+          <span class="details-link">View Setup Details →</span>
+        </div>
+      </a>
+    </article>
+  `).join('')
+}
+
 function renderGallery() {
+  const categories = ['All', ...new Set(workspaces.map(item => item.category))]
+
   app.innerHTML = `
     <header class="navbar">
       <a class="logo" href="#home">DevSpace</a>
@@ -99,16 +158,16 @@ function renderGallery() {
         <div class="filter-section">
 
           <input
-            type="search"
+            type="text"
             id="search-input"
             placeholder="Search workspaces, equipment..."
-            aria-label="Search workspaces"
+            value="${searchQuery}"
           >
 
           <div class="category-filters">
-            ${['All', ...new Set(workspaces.map(w => w.category))].map(category => `
+            ${categories.map(category => `
               <button
-                class="filter-btn ${category === activeCategory ? 'active' : ''}"
+                class="filter-btn ${activeCategory === category ? 'active' : ''}"
                 data-category="${category}"
               >
                 ${category}
@@ -118,21 +177,24 @@ function renderGallery() {
 
           <div class="budget-filter">
             <label for="budget-select">Budget:</label>
+
             <select id="budget-select">
               <option value="all">All Budgets</option>
-              <option value="600">Under $600</option>
-              <option value="1000">Under $1000</option>
-              <option value="1500">Under $1500</option>
+              <option value="600" ${activeBudget === '600' ? 'selected' : ''}>Under $600</option>
+              <option value="1000" ${activeBudget === '1000' ? 'selected' : ''}>Under $1000</option>
+              <option value="1500" ${activeBudget === '1500' ? 'selected' : ''}>Under $1500</option>
             </select>
 
-            <button id="clear-filters">Clear Filters</button>
+            <button id="clear-filters" class="clear-filters">
+              Clear Filters
+            </button>
           </div>
+
+          <p class="results-count"></p>
 
         </div>
 
-        <p class="results-count" id="results-count"></p>
-
-        <div class="workspace-grid" id="workspace-grid"></div>
+        <div class="workspace-grid"></div>
 
       </section>
 
@@ -147,9 +209,13 @@ function renderGallery() {
     </footer>
   `
 
-  document.querySelector('#search-input').addEventListener('input', event => {
-    searchQuery = event.target.value.toLowerCase().trim()
-    filterWorkspaces()
+  const searchInput = document.querySelector('#search-input')
+  const budgetSelect = document.querySelector('#budget-select')
+  const clearButton = document.querySelector('#clear-filters')
+
+  searchInput.addEventListener('input', event => {
+    searchQuery = event.target.value
+    renderCards()
   })
 
   document.querySelectorAll('.filter-btn').forEach(button => {
@@ -160,22 +226,22 @@ function renderGallery() {
         btn.classList.toggle('active', btn === button)
       })
 
-      filterWorkspaces()
+      renderCards()
     })
   })
 
-  document.querySelector('#budget-select').addEventListener('change', event => {
+  budgetSelect.addEventListener('change', event => {
     activeBudget = event.target.value
-    filterWorkspaces()
+    renderCards()
   })
 
-  document.querySelector('#clear-filters').addEventListener('click', () => {
-    searchQuery = ''
+  clearButton.addEventListener('click', () => {
     activeCategory = 'All'
+    searchQuery = ''
     activeBudget = 'all'
 
-    document.querySelector('#search-input').value = ''
-    document.querySelector('#budget-select').value = 'all'
+    searchInput.value = ''
+    budgetSelect.value = 'all'
 
     document.querySelectorAll('.filter-btn').forEach(button => {
       button.classList.toggle(
@@ -184,93 +250,14 @@ function renderGallery() {
       )
     })
 
-    filterWorkspaces()
+    renderCards()
   })
 
-  filterWorkspaces()
-}
-
-function filterWorkspaces() {
-  const filtered = workspaces.filter(workspace => {
-
-    const searchableText = [
-      workspace.name,
-      workspace.category,
-      workspace.description,
-      ...workspace.equipment,
-      ...workspace.features
-    ].join(' ').toLowerCase()
-
-    const matchesSearch = searchableText.includes(searchQuery)
-
-    const matchesCategory =
-      activeCategory === 'All' ||
-      workspace.category === activeCategory
-
-    const price = Number(workspace.budget.replace('$', ''))
-
-    const matchesBudget =
-      activeBudget === 'all' ||
-      price < Number(activeBudget)
-
-    return matchesSearch && matchesCategory && matchesBudget
-  })
-
-  const grid = document.querySelector('#workspace-grid')
-
-  document.querySelector('#results-count').textContent =
-    `Showing ${filtered.length} of ${workspaces.length} workspaces`
-
-  if (filtered.length === 0) {
-    grid.innerHTML = `
-      <div class="no-results">
-        <h3>No workspaces found</h3>
-        <p>Try changing your search or filters.</p>
-      </div>
-    `
-    return
-  }
-
-  grid.innerHTML = filtered.map(workspace => `
-    <article class="workspace-card">
-      <a href="#workspace/${workspace.id}" class="card-link">
-
-        <img
-          src="${workspace.image}"
-          alt="${workspace.name}"
-          loading="lazy"
-        >
-
-        <div class="card-content">
-          <span class="category">${workspace.category}</span>
-
-          <h3>${workspace.name}</h3>
-
-          <p>${workspace.description}</p>
-
-          <p>
-            <strong>Equipment:</strong>
-            ${workspace.equipment.join(', ')}
-          </p>
-
-          <p class="budget">
-            Estimated budget: ${workspace.budget}
-          </p>
-
-          <span class="details-link">
-            View Setup Details →
-          </span>
-        </div>
-
-      </a>
-    </article>
-  `).join('')
+  renderCards()
 }
 
 function renderDetails(id) {
-  const workspace = workspaces.find(
-    item => item.id === Number(id)
-  )
+  const workspace = workspaces.find(item => item.id === Number(id))
 
   if (!workspace) {
     app.innerHTML = `
@@ -293,13 +280,9 @@ function renderDetails(id) {
     </header>
 
     <main class="detail-page">
-
-      <a href="#workspaces" class="back-link">
-        ← Back to Gallery
-      </a>
+      <a href="#workspaces" class="back-link">← Back to Gallery</a>
 
       <div class="detail-container">
-
         <img
           class="detail-image"
           src="${workspace.image}"
@@ -307,9 +290,7 @@ function renderDetails(id) {
         >
 
         <div class="detail-content">
-
           <span class="category">${workspace.category}</span>
-
           <h1>${workspace.name}</h1>
 
           <p>${workspace.description}</p>
@@ -329,7 +310,6 @@ function renderDetails(id) {
           <div class="detail-budget">
             Estimated Budget: ${workspace.budget}
           </div>
-
         </div>
       </div>
     </main>

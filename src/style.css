@@ -307,147 +307,140 @@ footer {
   }
 }
 
-/* Module 3 - Search and Filtering */
+/* ===== Improved Workspace Filters ===== */
 
 .filter-section {
   margin: 30px 0;
   padding: 24px;
-  background: #1b1c22;
-  border: 1px solid #303139;
-  border-radius: 12px;
+  background: #191922;
+  border: 1px solid #302b40;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
+/* Search Bar */
 #search-input {
   width: 100%;
-  padding: 15px;
-  background: #101114;
-  border: 1px solid #393943;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 15px;
+  padding: 14px 18px;
+  background: #101017;
+  color: #ffffff;
+  border: 1px solid #393344;
+  border-radius: 9px;
+  font-size: 14px;
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 #search-input:focus {
-  border-color: #8b5cf6;
+  border-color: #9860ff;
+  box-shadow: 0 0 0 3px rgba(152, 96, 255, 0.15);
 }
 
 #search-input::placeholder {
-  color: #858590;
+  color: #85818f;
 }
 
 /* Category Buttons */
-
 .category-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin: 22px 0;
+  gap: 10px;
 }
 
 .filter-btn {
   padding: 9px 18px;
-  background: #292a30;
-  color: #c5c5cc;
-  border: 1px solid #393943;
-  border-radius: 20px;
+  background: #24232e;
+  color: #c5bfd2;
+  border: 1px solid #393344;
+  border-radius: 8px;
+  font-size: 13px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.filter-btn:hover,
-.filter-btn.active {
-  background: #8b5cf6;
+.filter-btn:hover {
+  border-color: #9860ff;
   color: white;
-  border-color: #8b5cf6;
+}
+
+.filter-btn.active {
+  background: #8850ed;
+  border-color: #8850ed;
+  color: white;
 }
 
 /* Budget Filter */
-
 .budget-filter {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  color: #c5c5cc;
+}
+
+.budget-filter label {
+  color: #d5d0df;
+  font-size: 14px;
 }
 
 .budget-filter select {
   padding: 10px 14px;
-  background: #101114;
+  background: #101017;
   color: white;
-  border: 1px solid #393943;
+  border: 1px solid #393344;
   border-radius: 8px;
+  font-size: 13px;
   cursor: pointer;
+  outline: none;
 }
 
-#clear-filters {
+.budget-filter select:focus {
+  border-color: #9860ff;
+}
+
+/* Clear Filters */
+.clear-filters {
   padding: 10px 16px;
   background: transparent;
-  color: #a78bfa;
-  border: 1px solid #8b5cf6;
+  color: #b99aff;
+  border: 1px solid #7650b5;
   border-radius: 8px;
+  font-size: 13px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-#clear-filters:hover {
-  background: #8b5cf6;
+.clear-filters:hover {
+  background: #8850ed;
   color: white;
+  border-color: #8850ed;
 }
 
-/* Search Results */
-
+/* Results Count */
 .results-count {
-  color: #a78bfa;
-  margin-bottom: 20px;
-  font-size: 14px;
+  color: #a49bad;
+  font-size: 13px;
+  margin: 0;
 }
 
+/* No Results */
 .no-results {
   grid-column: 1 / -1;
+  padding: 40px 20px;
   text-align: center;
-  padding: 50px 20px;
-  background: #1b1c22;
+  color: #b9b0c9;
+  background: #191922;
+  border: 1px solid #302b40;
   border-radius: 12px;
 }
 
-.no-results h3 {
-  margin-bottom: 10px;
-}
-
-.no-results p {
-  color: #b6b6c2;
-}
-
-/* Improved Workspace Cards */
-
-.workspace-card {
-  transition: transform 0.25s ease, border-color 0.25s ease;
-}
-
-.workspace-card:hover {
-  transform: translateY(-5px);
-  border-color: #8b5cf6;
-}
-
-.card-link {
-  display: block;
-  height: 100%;
-}
-
-.details-link {
-  display: inline-block;
-  margin-top: 15px;
-  color: #a78bfa;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-/* Responsive Improvements */
-
+/* Mobile Layout */
 @media (max-width: 600px) {
   .filter-section {
     padding: 16px;
+    gap: 16px;
   }
 
   .category-filters {
@@ -455,17 +448,17 @@ footer {
   }
 
   .filter-btn {
-    padding: 8px 13px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .budget-filter {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
   }
 
   .budget-filter select,
-  #clear-filters {
+  .clear-filters {
     width: 100%;
   }
 }
